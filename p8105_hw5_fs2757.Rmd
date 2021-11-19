@@ -114,3 +114,34 @@ homicide_test %>%
     title = "Estimated Proportion of Unsolved Homicides"
   )
 ```
+
+# Problem 2
+```{r}
+study = tibble(
+  file = list.files("data/zip")) %>% 
+  mutate(
+    id = str_remove(file, ".csv"),
+    path = str_c("data/zip/", file),
+    data = map(path, read_csv)) %>% 
+  unnest(data) %>% 
+  select(-file, -path) %>% 
+  pivot_longer(
+    week_1:week_8,
+    names_to = "week",
+    names_prefix = "week_",
+    values_to = "value"
+  ) %>% 
+  separate(id, into = c("study_arm", "subject_id"))%>% 
+  mutate(study_arm = if_else(study_arm == "con", "control", "experiment"))
+study
+study %>%
+  ggplot(aes(x = as.numeric(week), y = as.numeric(value), group = interaction(study_arm, subject_id), color = subject_id)) +
+    geom_line() +
+  labs(
+    title = "Subject Values on Each Subject Over Time",
+    x = "Week",
+    y = "Value",
+    color = "Group"
+  ) +
+  facet_grid( . ~study_arm)
+```
