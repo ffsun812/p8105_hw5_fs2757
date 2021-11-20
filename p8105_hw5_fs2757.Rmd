@@ -43,7 +43,11 @@ homicide=
   filter(city_state != "Tulsa,AL") 
 ```
 
-### For the city of Baltimore, MD, use the prop.test function to estimate the proportion of homicides that are unsolved; save the output of prop.test as an R object, apply the broom::tidy to this object and pull the estimated proportion and confidence intervals from the resulting tidy dataframe.
+*In this `homicide_raw` datasets, there are `r nrow(homicide_raw)` observations of `r ncol(homicide_raw)` variables. It has 12 variable which are `r names(homicide_raw)`.*
+
+## For the city of Baltimore, MD, use the prop.test function to estimate the proportion of homicides that are unsolved; save the output of prop.test as an R object, apply the broom::tidy to this object and pull the estimated proportion and confidence intervals from the resulting tidy dataframe.
+
+### Baltimore
 ```{r}
 baltimore =
   homicide%>% 
@@ -62,7 +66,10 @@ baltimore_test =
 
 baltimore_test %>% 
   broom::tidy()
+```
 
+### Fuction
+```{r}
 prop_test_function = function(city_df) {
    city_summary =
     city_df %>% 
@@ -83,7 +90,7 @@ homicide %>%
   prop_test_function()
 ```
 
-### Now run prop.test for each of the cities in your dataset, and extract both the proportion of unsolved homicides and the confidence interval for each. Do this within a “tidy” pipeline, making use of purrr::map, purrr::map2, list columns and unnest as necessary to create a tidy dataframe with estimated proportions and CIs for each city.
+## Now run prop.test for each of the cities in your dataset, and extract both the proportion of unsolved homicides and the confidence interval for each. Do this within a “tidy” pipeline, making use of purrr::map, purrr::map2, list columns and unnest as necessary to create a tidy dataframe with estimated proportions and CIs for each city.
 ```{r}
 homicide_test =
   homicide %>% 
@@ -99,10 +106,11 @@ homicide_test =
 homicide_test 
 ```
 
+### plotting
 ```{r}
 homicide_test %>% 
   mutate(city_state = fct_reorder(city_state, estimate)) %>% 
-  ggplot(aes(x = city_state, y = estimate, color = city_state)) +
+  ggplot(aes(x = city_state, y = estimate)) +
   geom_point() +
   geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
   theme(
@@ -116,7 +124,7 @@ homicide_test %>%
 ```
 
 # Problem 2
-### Create a tidy dataframe containing data from all participants, including the subject ID, arm, and observations over time
+## Create a tidy dataframe containing data from all participants, including the subject ID, arm, and observations over time
 ```{r}
 study = tibble(
   file = list.files("data/zip")) %>% 
@@ -135,20 +143,26 @@ study = tibble(
   separate(id, into = c("study_arm", "subject_id"))%>% 
   mutate(study_arm = if_else(study_arm == "con", "control", "experiment"))
 study
-study %>%
-  ggplot(aes(x = as.numeric(week), y = as.numeric(value), group = interaction(study_arm, subject_id), color = subject_id)) +
-    geom_line() +
-  labs(
-    title = "Subject Values on Each Subject Over Time",
-    x = "Week",
-    y = "Value",
-    color = "Group"
-  ) +
-  facet_grid( . ~study_arm)
 ```
 
+### Plot
+```{r}
+study %>%
+  ggplot(aes(x = as.numeric(week), y = as.numeric(value), group = interaction(study_arm, subject_id), color = study_arm)) +
+    geom_line() +
+    labs(
+      title = "Subject Values on Each Subject Over Time",
+      x = "Week",
+      y = "Value",
+      color = "Group") 
+```
+
+*From the plot, it is obviously shows that the observation on participants from the experimental arm are higher than the control arm. Furthermore, the experimental arm tend to increase while the observation of the control arm stay roughly the same.*
+
 # Problem 3
-### The code chunk below loads the iris dataset from the tidyverse package and introduces some missing values in each column. The purpose of this problem is to fill in those missing values.
+## The code chunk below loads the iris dataset from the tidyverse package and introduces some missing values in each column. The purpose of this problem is to fill in those missing values.
+
+### Fuction
 ```{r}
 set.seed(10)
 
